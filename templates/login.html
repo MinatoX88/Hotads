@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Clasificados Eróticos{% endblock %}
+
+<style>
+  .custom-link {
+    color: #28a745; /* Verde */
+    text-decoration: none; /* Opcional: elimina el subrayado del enlace */
+  }
+  .custom-link:hover {
+    color: #e83e8c; /* Rosado */
+    text-decoration: underline; /* Opcional: subraya el enlace al pasar el mouse */
+  }
+</style>
+
+{% block content %}
+   <div class="container">
+       <h2 class="text-center mb-4">Iniciar Sesión</h2>
+
+       <!-- Formulario de inicio de sesión con Flask-WTF -->
+       <form method="POST" action="{{ url_for('login') }}">
+           {{ form.hidden_tag() }}  <!-- CSRF Token -->
+
+           <!-- Campo de nombre de usuario -->
+           <div class="mb-3">
+               <label for="username" class="form-label">Nombre de Usuario</label>
+               {{ form.username(class="form-control", id="username", placeholder="Ingrese su nombre de usuario") }}
+               {% if form.username.errors %}
+                   <div class="text-danger">
+                       {% for error in form.username.errors %}
+                           <small>{{ error }}</small>
+                       {% endfor %}
+                   </div>
+               {% endif %}
+           </div>
+
+           <!-- Campo de contraseña -->
+           <div class="mb-3">
+               <label for="password" class="form-label">Contraseña</label>
+               {{ form.password(class="form-control", id="password", placeholder="Ingrese su contraseña") }}
+               {% if form.password.errors %}
+                   <div class="text-danger">
+                       {% for error in form.password.errors %}
+                           <small>{{ error }}</small>
+                       {% endfor %}
+                   </div>
+               {% endif %}
+           </div>
+
+           <!-- Botón de enviar -->
+           <div class="d-grid">
+               {{ form.submit(class="btn btn-primary") }}
+           </div>
+       </form>
+
+       <!-- Enlace para registrarse (si se implementa en el futuro) -->
+       <p class="text-center mt-3">
+           ¿No tienes cuenta? <a href="{{ url_for('registro') }}" style="color: #ff4081 !important; text-decoration: none;">Regístrate aquí</a>
+       </p>
+   </div>
+
+   <!-- Modal para mostrar errores -->
+   <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+       <div class="modal-dialog modal-dialog-centered">
+           <div class="modal-content">
+               <div class="modal-header">
+                   <h5 class="modal-title" id="errorModalLabel">Error</h5>
+                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                   Clave o nombre de usuario incorrecto.
+               </div>
+               <div class="modal-footer">
+                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+               </div>
+           </div>
+       </div>
+   </div>
+{% endblock %}
+
+{% block scripts %}
+   <script>
+       document.addEventListener('DOMContentLoaded', function() {
+           {% if form.username.errors or form.password.errors %}
+               var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+               errorModal.show();
+           {% endif %}
+       });
+   </script>
+{% endblock %}

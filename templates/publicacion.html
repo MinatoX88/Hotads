@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ publicacion.titulo }} - Detalles{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card p-4">
+        <!-- Título de la publicación -->
+        <h2 class="title">{{ publicacion.titulo }}</h2>
+
+        <!-- Información del usuario y fecha -->
+        <p class="meta-info">Publicado por <strong>{{ publicacion.autor.nombre }}</strong> el {{ publicacion.fecha_publicacion.strftime('%d/%m/%Y') }}</p>
+
+        <!-- Imagen de la publicación (si tiene) -->
+        {% if publicacion.imagen %}
+        <div class="img-container text-center my-3">
+            <img src="{{ url_for('static', filename='img/' + publicacion.imagen) }}" class="img-fluid" alt="{{ publicacion.titulo }}">
+        </div>
+        {% endif %}
+
+        <!-- Descripción completa -->
+        <p class="mt-3">{{ publicacion.descripcion }}</p>
+
+        <!-- Botón para volver al inicio -->
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Volver al listado</a>
+    </div>
+</div>
+{% endblock %}
