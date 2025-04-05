@@ -1,0 +1,12 @@
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Flask-WTF==1.2.1
+Flask-Uploads==0.2.1
+phonenumbers==9.0.1
+gunicorn==23.0.0
+paypalrestsdk==1.13.3
+Flask-Bootstrap==3.3.7.1  # Opcional, si se desea usar Bootstrap de forma nativa
+Werkzeug==3.0.1  # Para la gestión segura de contraseñas
+email-validator==2.1.0.post1  # Requerido por Flask-WTF para validar correos electrónicos
+python-dotenv==1.0.1  # Para manejar variables de entorno (como claves secretas)

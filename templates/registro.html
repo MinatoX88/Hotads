@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="col-md-6">
+        <div class="card shadow-lg border-0">
+            <div class="card-header text-center text-white" style="background-color: #ff4081;">
+                <h2 class="my-2">Registro</h2>
+            </div>
+            <div class="card-body p-4">
+                <form id="registro-form" method="POST" action="{{ url_for('registro') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Nombre de Usuario</label>
+                        {{ form.username(class="form-control", id="username", placeholder="Ingresa tu nombre de usuario", required=True) }}
+                        <div id="username-error" class="text-danger small"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edad" class="form-label">Edad</label>
+                        {{ form.edad(class="form-control", id="edad", type="number", min="18", placeholder="Ingresa tu edad", required=True) }}
+                        <div id="edad-error" class="text-danger small"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="genero" class="form-label">Género</label>
+                        {{ form.genero(class="form-select", id="genero", required=True) }}
+                        <div id="genero-error" class="text-danger small"></div>
+                    </div>
+
+                    <!-- País -->
+                    <div class="mb-3">
+                        <label for="pais" class="form-label">País</label>
+                        <select class="form-select" id="pais" name="pais" required>
+                            <option value="">Selecciona un país</option>
+                        </select>
+                        <div id="pais-error" class="text-danger small"></div>
+                    </div>
+
+                    <!-- Ciudad (cambiado a input con autocompletado) -->
+                    <div class="mb-3">
+                        <label for="ciudad" class="form-label">Ciudad</label>
+                        <input type="text" class="form-control" id="ciudad" name="ciudad" placeholder="Escribe para buscar..." disabled required>
+                        <div id="ciudad-error" class="text-danger small"></div>
+                        <ul id="ciudad-sugerencias" class="list-group position-absolute w-100"></ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        {{ form.password(class="form-control", id="password", placeholder="Ingresa una contraseña", autocomplete="off", required=True) }}
+                        <div id="password-error" class="text-danger small"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
+                        {{ form.confirm_password(class="form-control", id="confirm_password", placeholder="Confirma tu contraseña", autocomplete="off", required=True) }}
+                        <div id="confirm-password-error" class="text-danger small"></div>
+                    </div>
+
+                    <div class="mb-3 text-center">
+                        <p class="small">
+                            Al registrarte, aceptas nuestro 
+                            <a href="{{ url_for('privacidad') }}" class="text-primary">aviso de privacidad</a>.
+                        </p>
+                    </div>
+
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const paisInput = document.getElementById("pais");
+    const ciudadInput = document.getElementById("ciudad");
+    const ciudadSugerencias = document.getElementById("ciudad-sugerencias");
+
+    const paisesHispanohablantes = [
+        "Argentina", "Bolivia","Canadá", "Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador", "El Salvador","Estados Unidos",
+        "España", "Guatemala", "Honduras", "México", "Nicaragua", "Panamá", "Paraguay", "Perú",
+        "Puerto Rico", "República Dominicana", "Uruguay", "Venezuela"
+    ];
+
+    function actualizarListaPaises() {
+        paisInput.innerHTML = '<option value="">Selecciona un país</option>';
+        paisesHispanohablantes.forEach(pais => {
+            const option = document.createElement("option");
+            option.value = pais;
+            option.textContent = pais;
+            paisInput.appendChild(option);
+        });
+    }
+
+    let ciudadesDisponibles = [];
+
+async function cargarCiudades(pais) {
+    const nombresCorregidos = {
+        "México": "Mexico",
+        "Panamá": "Panama",
+        "República Dominicana": "Dominican Republic",
+        "Perú": "Peru",
+        "España": "Spain",
+        "Canadá": "Canada",
+        "Estados Unidos":"United States"
+    };
+
+    // Si el país necesita un nombre corregido, lo ajustamos
+    const paisFormateado = nombresCorregidos[pais] || pais;
+
+    ciudadInput.disabled = true;
+    ciudadInput.value = "";
+    ciudadSugerencias.innerHTML = "";
+    ciudadInput.placeholder = "Cargando...";
+
+    try {
+        const response = await fetch("https://countriesnow.space/api/v0.1/countries/cities", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ country: paisFormateado })
+        });
+
+        const data = await response.json();
+        if (data.error || !data.data.length) {
+            ciudadInput.placeholder = "No hay ciudades disponibles";
+            return;
+        }
+
+        // Filtrar nombres que contengan palabras como "Departamento", "State", "Province"
+        ciudadesDisponibles = data.data.filter(ciudad => !/Departamento|State|Province/i.test(ciudad));
+        ciudadInput.disabled = false;
+        ciudadInput.placeholder = "Escribe para buscar...";
+    } catch (error) {
+        console.error("Error al cargar ciudades:", error);
+        ciudadInput.placeholder = "Error al cargar";
+    }
+}
+
+    function mostrarSugerencias(input) {
+        const filtro = input.toLowerCase();
+        const sugerencias = ciudadesDisponibles.filter(ciudad => ciudad.toLowerCase().startsWith(filtro)).slice(0, 5);
+
+        ciudadSugerencias.innerHTML = "";
+        if (sugerencias.length === 0) return;
+
+        sugerencias.forEach(ciudad => {
+            const item = document.createElement("li");
+            item.classList.add("list-group-item", "list-group-item-action");
+            item.textContent = ciudad;
+            item.onclick = () => {
+                ciudadInput.value = ciudad;
+                ciudadSugerencias.innerHTML = "";
+            };
+            ciudadSugerencias.appendChild(item);
+        });
+    }
+
+    paisInput.addEventListener("change", function () {
+        const paisSeleccionado = paisInput.value;
+        if (paisesHispanohablantes.includes(paisSeleccionado)) {
+            cargarCiudades(paisSeleccionado);
+        } else {
+            ciudadInput.value = "";
+            ciudadInput.disabled = true;
+            ciudadSugerencias.innerHTML = "";
+        }
+    });
+
+    ciudadInput.addEventListener("input", function () {
+        if (ciudadInput.value.length > 0) {
+            mostrarSugerencias(ciudadInput.value);
+        } else {
+            ciudadSugerencias.innerHTML = "";
+        }
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!ciudadInput.contains(event.target) && !ciudadSugerencias.contains(event.target)) {
+            ciudadSugerencias.innerHTML = "";
+        }
+    });
+
+    actualizarListaPaises();
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const edadInput = document.getElementById("edad");
+    const edadError = document.getElementById("edad-error");
+
+    edadInput.addEventListener("input", function () {
+        const edad = parseInt(edadInput.value, 10);
+
+        if (isNaN(edad) || edad < 18) {
+            edadError.textContent = "Debes tener al menos 18 años.";
+            edadInput.setCustomValidity("Edad mínima requerida: 18 años");
+        } else {
+            edadError.textContent = "";
+            edadInput.setCustomValidity("");
+        }
+    });
+});
+</script>
+
+{% endblock %}

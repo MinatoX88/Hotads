@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}HotAds{% endblock %}
+
+{% block content %}
+  <style>
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70%, 1fr)); /* Hasta 4 por fila */
+      gap: 20px;
+      max-height: 80vh; /* Ajusta la altura para que tenga desplazamiento */
+      overflow-y: auto; /* Permite desplazarse si hay más de 4 anuncios */
+      padding: 7px;
+    }
+
+    .card {
+      width: 100%;
+      height: 125px; /* Ajustado para más texto */
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background: white;
+    }
+
+    .card-content {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      max-height: 100%;
+    }
+
+    .card-img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-right: 10px;
+      flex-shrink: 0; /* Evita que la imagen cambie de tamaño */
+    }
+
+    .card-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      overflow-wrap: break-word;
+      
+    }
+
+    .card-description {
+      font-size: 0.74rem;
+      color: #111;
+      margin: 0px 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 5; /* Ahora permite 5 líneas */
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: bold;
+      
+    }
+
+    .card-footer {
+      max-width: 100%;
+      max-height: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.70rem; /* Más pequeño para ocupar menos espacio */
+      color: #777;
+      /* Empuja el contenido hacia arriba */
+      padding-top: 1px;
+      border-top: 1px solid #ddd; /* Sutil separación */
+    }
+
+    .card-footer p {
+      margin: 0px;
+      white-space: nowrap; /* Evita que se parta el texto */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: -10px;
+    }
+
+    .card-link {
+      text-decoration: none;
+      color: inherit;
+    }
+  </style>
+
+  {% if publicaciones %}
+    <div class="container">
+      {% for publicacion in publicaciones %}
+        <a href="{{ url_for('perfil', user_id=publicacion.user_id, img_destacada=publicacion.imagen.split('/')[-1]) }}" class="card-link">
+          <div class="card">
+            <div class="card-content">
+              <img src="{{ url_for('static', filename='img/publicaciones/' ~ publicacion.imagen) }}" class="card-img" alt="{{ publicacion.titulo }}">
+              <div class="card-text">
+                <h5 class="card-description">{{ publicacion.contenido }}</h5>
+                <div class="card-footer">
+                  <p>{{ publicacion.ciudad }}</p>
+                  <p>{{ publicacion.date_posted.strftime('%d-%m-%Y') }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center">No hay publicaciones disponibles en este momento.</p>
+  {% endif %}
+{% endblock %}

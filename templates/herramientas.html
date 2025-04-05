@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editor de Imágenes</title>
+    <style>
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .preview { max-width: 100%; margin-top: 20px; }
+        .options { margin: 20px 0; }
+        button { margin-right: 10px; padding: 8px 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Editor de Imágenes</h1>
+        
+        <input type="file" id="imageInput" accept="image/*">
+        
+        <div class="options">
+            <button onclick="processImage('remove_bg')">Quitar Fondo</button>
+            <button onclick="processImage('enhance')">Mejorar Calidad</button>
+            <button onclick="processImage('blur_face')">Difuminar Rostros</button>
+            <button onclick="addWatermark()">Agregar Marca de Agua</button>
+        </div>
+        
+        <div id="watermarkDiv" style="display:none;">
+            <input type="text" id="watermarkText" placeholder="Texto de marca de agua">
+            <button onclick="processImage('watermark')">Aplicar</button>
+        </div>
+        
+        <img id="preview" class="preview" style="display:none;">
+        <a id="downloadLink" style="display:none;">Descargar Imagen</a>
+    </div>
+
+    <script>
+        let currentImage = null;
+        
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                currentImage = file;
+                const preview = document.getElementById('preview');
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            }
+        });
+        
+        function processImage(type) {
+            if (!currentImage) {
+                alert('Por favor selecciona una imagen primero');
+                return;
+            }
+            
+            if (type === 'watermark') {
+                document.getElementById('watermarkDiv').style.display = 'block';
+                return;
+            }
+            
+            sendToServer(type);
+        }
+        
+        function addWatermark() {
+            const text = document.getElementById('watermarkText').value;
+            if (!text) {
+                alert('Ingresa un texto para la marca de agua');
+                return;
+            }
+            sendToServer('watermark', text);
+        }
+        
+        function sendToServer(type, watermarkText = '') {
+            const formData = new FormData();
+            formData.append('imagen', currentImage);
+            formData.append('procesamiento', type);
+            
+            if (type === 'watermark') {
+                formData.append('texto', watermarkText);
+            }
+            
+            fetch('/procesar_imagen', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                document.getElementById('preview').src = url;
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = url;
+                downloadLink.download = 'imagen_procesada.png';
+                downloadLink.style.display = 'inline-block';
+                downloadLink.textContent = 'Descargar Imagen Procesada';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error al procesar la imagen');
+            });
+        }
+    </script>
+</body>
+</html>

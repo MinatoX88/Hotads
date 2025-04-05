@@ -1,0 +1,31 @@
+
+<div class="container mt-5">
+    <div class="card p-4 shadow-lg rounded-3" style="max-width: 600px; margin: 0 auto;">
+        <h2 class="text-center mb-4" style="color: #2c3e50; font-weight: bold;">Crear Nuevo Anuncio</h2>
+        <form action="{{ url_for('guardar_publicacion') }}" method="POST" enctype="multipart/form-data">
+            <div class="mb-4">
+                <label for="descripcion" class="form-label" style="color: #34495e; font-weight: 500;">Descripción</label>
+                <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required style="border-radius: 10px; border: 1px solid #ced4da;"></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="imagen" class="form-label" style="color: #34495e; font-weight: 500;">Subir Imagen</label>
+                <input class="form-control" type="file" id="imagen" name="imagen" accept="image/*" required style="border-radius: 10px; border: 1px solid #ced4da;">
+            </div>
+            {% if costo %}
+            <label for="descripcion" class="form-label" style="color: #ff0000; text-align:center; font-weight: 50;">Publicar tiene un costo de {{costo.publicar}} BBcoin</label>
+            {% endif %}
+            
+            
+            <div class="text-center">
+                <button type="submit" class="btn btn-success btn-lg" style="background-color: #27ae60; border: none; border-radius: 10px; padding: 10px 30px; font-weight: 500;">Publicar</button>
+            </div>
+
+            {% if current_user.is_authenticated %}
+            <div style="text-align: center; padding: 10px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 13px" class="search-module2">
+                <span>{{ current_user.token_balance }}  BBcoin</span>
+                <button type="submit" class="btn-buscar2">Recargar</button>
+            </div>
+            {% endif %}  <!-- Aquí se cierra el if correctamente -->
+        </form>
+    </div>
+</div>

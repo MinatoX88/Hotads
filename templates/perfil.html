@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfil de {{ usuario.username }}{% endblock %}
+
+{% block content %}
+<style>
+    .carousel-item img {
+        height: 400px;
+        object-fit: cover;
+    }
+    .btn-custom-pink {
+        background-color: #ff4081;
+        color: white;
+    }
+    .about-me-box {
+        background-color: #b8f8f8
+        color: #000;
+        padding: 15px;
+        border-radius: 12px;
+        width: 100%; /* Asegúrate de que el ancho esté definido */
+        margin: auto;
+        text-align: justify;
+        word-wrap: break-word; /* Ajusta las palabras largas */
+        overflow-wrap: break-word; /* Alternativa moderna a word-wrap */
+        box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.8);
+    }
+    .section-title {
+        margin: 30px 0 15px;
+        color: #ff4081;
+    }.carousel-container {
+    max-width: 100%;
+    margin: auto;
+    padding: 15px;
+    border: none; /* Elimina cualquier borde */
+    border-radius: 12px;
+    background-color: #f0f0f0; /* Fondo gris claro */
+    box-shadow: inset 0px 4px 10px rgba(0, 0, 0, 0.2); /* Sombra interna */
+    text-align: center;
+}
+
+    .profile-img {
+        border-radius: 8px;
+        height: 300px; /* Ajusta según necesidad */
+        object-fit: cover;
+        box-shadow: inset 0px 0px 15px rgba(0, 0, 0, 0.3); /* Sombra interna */
+        border: none !important; /* Fuerza a eliminar cualquier borde */
+    }
+    
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        filter: invert(1); /* Hace los íconos blancos */
+    }
+    
+    .carousel-control-prev,
+    .carousel-control-next {
+        opacity: 0.7; /* Botones de navegación ligeramente transparentes */
+    }
+    
+    .carousel-control-prev:hover,
+    .carousel-control-next:hover {
+        opacity: 1;
+    }
+    
+    .ad-card {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        margin: auto;
+        max-height: 100px;
+    }
+    
+    .ad-img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+    
+    .ad-content {
+        flex-grow: 1;
+        margin-left: 10px;
+        overflow: hidden;
+    }
+    
+    .ad-description {
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 220px; /* Limita el ancho para evitar que desplace la ciudad y fecha */
+    }
+    
+    .ad-footer {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #777;
+    }
+</style>
+
+<div class="container">
+    <div class="carousel-container">
+        <div id="profileCarousel" class="carousel slide" data-bs-ride="{% if imagenes|length > 1 %}carousel{% else %}false{% endif %}" data-bs-interval="3000">
+            <div class="carousel-inner">
+                {% for imagen in imagenes %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                        <img src="{{ url_for('static', filename='img/publicaciones/' + imagen) }}" class="d-block w-100 profile-img" alt="Imagen {{ loop.index }}">
+                    </div>
+                {% endfor %}
+            </div>
+
+        {% if imagenes|length > 1 %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#profileCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#profileCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        {% endif %}
+    </div>
+</div>
+    
+
+
+    <!-- Nombre de usuario -->
+    <h1 class="section-title">Sobre Mi</h1>
+
+    <!-- Descripción -->
+<div class="about-me-box">
+    <p class="lead text-start">{{ usuario.descripcion | safe or "Aún no has agregado información sobre ti." }}</p>
+    {% if usuario.whatsapp %}
+        <div class="d-flex justify-content-center mt-3">
+            <a href="https://wa.me/{{ usuario.whatsapp }}" class="btn btn-success" target="_blank">
+                <i class="fab fa-whatsapp"></i> Contactar por WhatsApp
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+
+    <!-- Carrusel de Galerías -->
+    <h1 class="section-title">Marketpalce</h1>
+    <div id="galleryCarousel" class="carousel slide" align-items-center data-bs-ride="carousel" data-bs-interval="3000">
+        <div class="carousel-inner">
+            {% if usuario.galerias %}
+                {% for galeria in usuario.galerias %}
+                <div class="carousel-item {{ 'active' if loop.first }}">
+                    <img src="{{ url_for('static', filename='img/galerias/' + galeria.imagen_portada) }}" class="d-block w-100" alt="{{ galeria.nombre }}">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>{{ galeria.nombre }}</h5>
+                        <p>{{ galeria.descripcion }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="carousel-item active">
+                    <div class="text-center py-5 bg-dark text-light">
+                        <p>Proximamente disponible</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+<!-- Modal para Publicar -->
+<div class="modal fade" id="publicarModal" tabindex="-1" aria-labelledby="publicarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <!-- Aquí incluimos el contenido de publicar.html -->
+                {% include 'publicar.html' %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Herramientas -->
+<div class="modal fade" id="herramientasModal" tabindex="-1" aria-labelledby="herramientasModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <!-- Aquí incluimos el contenido de herramientas.html -->
+                {% include 'herramientas.html' %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar perfil -->
+<div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <!-- Aquí incluimos el contenido de editarperfil.html -->
+                {% include 'editarperfil.html' %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- Botones de acción -->
+<div class="row my-5">
+    {% if current_user.is_authenticated and current_user.id == usuario.id %}
+<div class="col-md-4 mb-3">
+    <button type="button" class="btn btn-custom-pink w-100 py-3" data-bs-toggle="modal" data-bs-target="#publicarModal">
+        Crear Anuncio
+    </button>
+</div>
+        <div class="col-md-4 mb-3">
+            <button type="button" class="btn btn-success w-100 py-3" data-bs-toggle="modal" data-bs-target="#herramientasModal">Herramientas</button>
+        </div>
+        <div class="col-md-4 mb-3">
+            <button type="button"class="btn btn-primary w-100 py-3"data-bs-toggle="modal" data-bs-target="#editarModal" >Editar Perfil</button>
+        </div>        
+    {% endif %}
+<!-- Carrusel de Anuncios -->
+<h3 class="section-title">Mis Anuncios</h3>
+<div id="adsCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+    <div class="carousel-inner">
+        {% if usuario.posts %}
+            {% for post in usuario.posts|sort(attribute='date_posted', reverse=true) %}
+            <div class="carousel-item {{ 'active' if loop.first }}">
+                <div class="ad-card">
+                    <img src="{{ url_for('static', filename='img/publicaciones/' + post.imagen) }}" 
+                         class="ad-img" 
+                         alt="{{ post.contenido[:20] }}">
+                    <div class="ad-content">
+                        <p class="ad-description">{{ post.contenido }}</p>
+                        <div class="ad-footer">
+                            <span class="ad-city">{{ post.ciudad }}</span>
+                            <span class="ad-date">{{ post.date_posted.strftime('%d-%m-%Y') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="carousel-item active">
+                <div class="text-center py-3 bg-dark text-light small">
+                    <p>No hay posts disponibles</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Controles del carrusel -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#adsCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#adsCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Siguiente</span>
+    </button>
+</div>
+</div>
+</div>
+<!-- Script para controlar los carruseles -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar todos los carruseles
+    const carousels = document.querySelectorAll('.carousel');
+    carousels.forEach(carousel => {
+        new bootstrap.Carousel(carousel, {
+            interval: 3000,
+            wrap: true
+        });
+    });
+});
+</script>
+{% endblock %}
