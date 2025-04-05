@@ -10,6 +10,10 @@ from datetime import datetime
 import phonenumbers
 from io import BytesIO
 from PIL import Image, ImageFilter, ImageEnhance, ImageDraw, ImageFont 
+import cv2
+import numpy as np
+import rembg
+import base64
 
 
 def formatear_numero_whatsapp(pais, numero):
